@@ -1,5 +1,6 @@
 package com.example.foodshoptestcase.Activity.Dashboard
 
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -31,13 +31,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import coil.compose.AsyncImage
-import com.example.foodshoptestcase.Domain.ItemModel
+import com.example.foodshoptestcase.Activity.Datail.DetailActivity
+import com.example.foodshoptestcase.Domain.ItemsModel
 import com.example.foodshoptestcase.R
 
 
 @Composable
-fun ListItems(items: List<ItemModel>){
+fun ListItems(items: List<ItemsModel>){
     LazyRow(
         modifier = Modifier.padding(top=8.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -51,27 +53,31 @@ fun ListItems(items: List<ItemModel>){
 
 
 @Composable
-fun BestSellerItem(items:List<ItemModel>,pos:Int){
+fun BestSellerItem(items:List<ItemsModel>, pos:Int){
     val context= LocalContext.current
 
-    Column(modifier = Modifier
-        .padding(4.dp)
-        .wrapContentHeight()
-    ){
+    Column(
+        modifier = Modifier
+            .padding(4.dp)
+            .wrapContentHeight()
+    ) {
         AsyncImage(
-            model=items[pos].picUrl.firstOrNull(),
+            model = items[pos].picUrl.firstOrNull(),
             contentDescription = null,
-            modifier=Modifier
+            modifier = Modifier
                 .width(180.dp)
                 .background(colorResource(R.color.lightGrey), shape = RoundedCornerShape(10.dp))
                 .clip(RoundedCornerShape(10.dp))
                 .height(180.dp)
                 .clickable {
-
+                    val intent = Intent(context, DetailActivity::class.java).apply {
+                        putExtra("object", items[pos])
+                    }
+                    startActivity(context,intent,null)
                 }, contentScale = ContentScale.Crop
         )
         Text(
-            text=items[pos].title,
+            text = items[pos].title,
             color= Color.Black,
             fontSize=16.sp,
             fontWeight = FontWeight.SemiBold,
@@ -82,7 +88,7 @@ fun BestSellerItem(items:List<ItemModel>,pos:Int){
         )
         Row(modifier=Modifier
             .width(175.dp)
-            .padding(top=4.dp)) {
+            .padding(top = 4.dp)) {
             Row {
                 Image(
                     painter = painterResource(R.drawable.star),contentDescription = null,

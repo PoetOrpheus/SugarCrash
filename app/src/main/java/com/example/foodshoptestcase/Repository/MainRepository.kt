@@ -3,7 +3,7 @@ package com.example.foodshoptestcase.Repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.foodshoptestcase.Domain.CategoryModel
-import com.example.foodshoptestcase.Domain.ItemModel
+import com.example.foodshoptestcase.Domain.ItemsModel
 import com.example.foodshoptestcase.Domain.SliderModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -58,15 +58,15 @@ class MainRepository {
         return listData
     }
 
-    fun loadBestSeller():LiveData<MutableList<ItemModel>>{
-        val listData=MutableLiveData<MutableList<ItemModel>>()
+    fun loadBestSeller():LiveData<MutableList<ItemsModel>>{
+        val listData=MutableLiveData<MutableList<ItemsModel>>()
         val ref=firebaseDatabase.getReference("Items")
 
         ref.addValueEventListener(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
-                val lists= mutableListOf<ItemModel>()
+                val lists= mutableListOf<ItemsModel>()
                 for(childSnapshot in snapshot.children){
-                    val item= childSnapshot.getValue(ItemModel::class.java)
+                    val item= childSnapshot.getValue(ItemsModel::class.java)
                     item?.let{lists.add(it)}
                 }
                 listData.value=lists

@@ -2,9 +2,7 @@ package com.example.foodshoptestcase.Activity.Dashboard
 
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 //noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,17 +32,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.foodshoptestcase.Activity.BaseActivity
 import com.example.foodshoptestcase.Domain.CategoryModel
-import com.example.foodshoptestcase.Domain.ItemModel
+import com.example.foodshoptestcase.Domain.ItemsModel
 import com.example.foodshoptestcase.Domain.SliderModel
 import com.example.foodshoptestcase.R
 import com.example.foodshoptestcase.ViewModel.MainViewModel
-import com.example.foodshoptestcase.ui.theme.FoodShopTestCaseTheme
 
 class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,7 +60,7 @@ fun DashboardScreen(onCartClick:()->Unit) {
     val viewModel = MainViewModel()
     val banners = remember { mutableStateListOf<SliderModel>() }
     val categories = remember { mutableStateListOf<CategoryModel>() }
-    val bestSeller = remember { mutableStateListOf<ItemModel>() }
+    val bestSeller = remember { mutableStateListOf<ItemsModel>() }
 
     var showBannerLoading by remember { mutableStateOf(true) }
     var showCategoryLoading by remember { mutableStateOf(true) }
