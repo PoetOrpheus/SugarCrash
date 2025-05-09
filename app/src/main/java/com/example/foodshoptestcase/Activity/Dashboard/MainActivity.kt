@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.foodshoptestcase.Activity.BaseActivity
 import com.example.foodshoptestcase.Domain.CategoryModel
+import com.example.foodshoptestcase.Domain.ItemModel
 import com.example.foodshoptestcase.Domain.SliderModel
 import com.example.foodshoptestcase.R
 import com.example.foodshoptestcase.ViewModel.MainViewModel
@@ -61,9 +63,11 @@ fun DashboardScreen() {
     val viewModel = MainViewModel()
     val banners = remember { mutableStateListOf<SliderModel>() }
     val categories = remember { mutableStateListOf<CategoryModel>() }
+    val bestSeller = remember { mutableStateListOf<ItemModel>() }
 
     var showBannerLoading by remember { mutableStateOf(true) }
     var showCategoryLoading by remember { mutableStateOf(true) }
+    var showBestSellerLoading by remember { mutableStateOf(true) }
 
     //banner
     LaunchedEffect(Unit) {
@@ -86,6 +90,17 @@ fun DashboardScreen() {
             showCategoryLoading=false
             Log.e("category","Категории должны был загрузиться в launchedEffect\n" +
                     "showCategoryLoading:$showCategoryLoading")
+        }
+    }
+
+    //BestSeller
+    LaunchedEffect(Unit) {
+        viewModel.loadBestSeller().observeForever {
+            bestSeller.clear()
+            bestSeller.addAll(it)
+            showBestSellerLoading=false
+            Log.e("bestSeller","Лучшие продукты должны был загрузиться в launchedEffect\n" +
+                    "showCategoryLoading:$showBestSellerLoading")
         }
     }
 
@@ -168,6 +183,42 @@ fun DashboardScreen() {
                 }
                 else{
                     CategoryList(categories)
+                }
+            }
+
+            item{
+                Row(modifier=Modifier
+                    .fillMaxWidth()
+                    .padding(top=24.dp)
+                    .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(
+                        text ="Луччшие продукты",
+                        color=Color.Black,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = "Все продукты",
+                        color= colorResource(R.color.midBrown),
+
+                    )
+                }
+            }
+
+            item {
+                if (showBestSellerLoading){
+                    Box(
+                        modifier=Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ){
+                        CircularProgressIndicator()
+                    }
+                }
+                else{
+                    ListItems(bestSeller)
                 }
             }
         }
