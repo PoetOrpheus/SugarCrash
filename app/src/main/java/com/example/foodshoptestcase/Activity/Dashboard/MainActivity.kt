@@ -1,5 +1,6 @@
 package com.example.foodshoptestcase.Activity.Dashboard
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
@@ -36,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.foodshoptestcase.Activity.BaseActivity
+import com.example.foodshoptestcase.Activity.Cart.CartActivity
 import com.example.foodshoptestcase.Domain.CategoryModel
 import com.example.foodshoptestcase.Domain.ItemsModel
 import com.example.foodshoptestcase.Domain.SliderModel
@@ -46,8 +48,8 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            DashboardScreen{
-
+            DashboardScreen {
+                startActivity(Intent(this, CartActivity::class.java))
             }
         }
     }
@@ -145,7 +147,8 @@ fun DashboardScreen(onCartClick:()->Unit) {
             item {
                 if(showBannerLoading){
                     Box(
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
                             .height(200.dp),
                         contentAlignment = Alignment.Center
                     ){
@@ -186,7 +189,7 @@ fun DashboardScreen(onCartClick:()->Unit) {
             item{
                 Row(modifier=Modifier
                     .fillMaxWidth()
-                    .padding(top=36.dp)
+                    .padding(top = 36.dp)
                     .padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(
@@ -222,7 +225,7 @@ fun DashboardScreen(onCartClick:()->Unit) {
         BottomMenu(
             modifier = Modifier
                 .fillMaxWidth()
-                .constrainAs(bottomMenu){
+                .constrainAs(bottomMenu) {
                     bottom.linkTo(parent.bottom)
                 },
             onItemClick =onCartClick

@@ -34,7 +34,7 @@ fun BottomMenu(
         horizontalArrangement = Arrangement.Absolute.SpaceAround)
     {
         BottomMenuItems(icon = painterResource(R.drawable.btn_1),text="Explorer")
-        BottomMenuItems(icon = painterResource(R.drawable.btn_2),text="Cart")
+        BottomMenuItems(icon = painterResource(R.drawable.btn_2),text="Корзина",onItemClick=onItemClick)
         BottomMenuItems(icon = painterResource(R.drawable.btn_3),text="Favorite")
         BottomMenuItems(icon = painterResource(R.drawable.btn_4),text="Orders")
         BottomMenuItems(icon = painterResource(R.drawable.btn_5),text="Profile")

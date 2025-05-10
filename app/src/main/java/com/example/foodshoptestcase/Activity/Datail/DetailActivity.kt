@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.rememberAsyncImagePainter
 import com.example.foodshoptestcase.Activity.BaseActivity
+import com.example.foodshoptestcase.Activity.Cart.CartActivity
 import com.example.foodshoptestcase.Domain.ItemsModel
 import com.example.foodshoptestcase.Helper.ManagmentCart
 import com.example.foodshoptestcase.R
@@ -57,7 +58,7 @@ class DetailActivity : BaseActivity() {
                     managmentCart.insertItems(item)
                 },
                 onCartClick = {
-
+                startActivity(Intent(this,CartActivity::class.java ))
                 }
             )
         }
