@@ -94,7 +94,7 @@ fun CartItem(
                 .padding(start = 8.dp, top = 8.dp)
         )
         Text(
-            text = "$${item.price}",
+            text = "${item.price} ₽",
             color = colorResource(R.color.green),
             modifier = Modifier
                 .constrainAs(feeEachTime){
@@ -104,7 +104,7 @@ fun CartItem(
                 .padding(start = 8.dp,top=8.dp)
         )
         Text(
-            text = "$${item.numberInCart*item.price}",
+            text = "${item.numberInCart*item.price} ₽",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier

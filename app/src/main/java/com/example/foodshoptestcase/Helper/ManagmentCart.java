@@ -1,6 +1,7 @@
 package com.example.foodshoptestcase.Helper;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 
@@ -36,7 +37,7 @@ public class ManagmentCart {
             listFood.add(item);
         }
         tinyDB.putListObject("CartList", listFood);
-        Toast.makeText(context, "Added to your Cart", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "Добавлено в корзину", Toast.LENGTH_SHORT).show();
     }
 
     public ArrayList<ItemsModel> getListCart() {
@@ -66,5 +67,45 @@ public class ManagmentCart {
             fee += item.getPrice() * item.getNumberInCart();
         }
         return fee;
+    }
+
+    public void toggleFavorite(ItemsModel item) {
+        ArrayList<ItemsModel> favoriteList = getFavoriteList();
+        //boolean isFavorite = item.getLovers();
+        int index = -1;
+
+        for (int i = 0; i < favoriteList.size(); i++) {
+            if (favoriteList.get(i).getTitle().equals(item.getTitle())) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index != -1) {
+            // Элемент уже в избранном, удаляем его
+            favoriteList.remove(index);
+            item.setLovers(false);
+            Toast.makeText(context, "Удалено из избранного", Toast.LENGTH_SHORT).show();
+            Log.d("ManagmentCart", "Removed from favorites: " + item.getTitle());
+        } else {
+            // Элемент не в избранном, добавляем его
+            item.setLovers(true);
+            favoriteList.add(item);
+            Toast.makeText(context, "Добавлено в избранное  ", Toast.LENGTH_SHORT).show();
+            Log.d("ManagmentCart", "Added to favorites: " + item.getTitle());
+        }
+
+        tinyDB.putListObject("FavoriteList", favoriteList);
+    }
+
+    public ArrayList<ItemsModel> getFavoriteList() {
+        ArrayList<ItemsModel> favoriteList = tinyDB.getListObject("FavoriteList");
+        if (favoriteList == null) {
+            Log.d("ManagmentCart", "Favorite list is null, returning empty list");
+            favoriteList = new ArrayList<>();
+        } else {
+            Log.d("ManagmentCart", "Favorite list size: " + favoriteList.size());
+        }
+        return favoriteList;
     }
 }

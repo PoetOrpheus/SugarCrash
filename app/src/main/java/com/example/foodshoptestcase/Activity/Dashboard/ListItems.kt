@@ -119,7 +119,7 @@ fun BestSellerItem(items:List<ItemsModel>, pos:Int){
             }
 
         Text(
-            text="$${items[pos].price}",
+            text="${items[pos].price} ₽",
             color= colorResource(R.color.darkBrown),
             textAlign = TextAlign.End,
             modifier=Modifier.fillMaxWidth(),

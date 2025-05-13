@@ -62,13 +62,13 @@ private fun ListItemScreen(
     viewModel: MainViewModel,
     id:String
 ) {
-    val items by viewModel.liadFiltered(id).observeAsState(emptyList())
+    val items by viewModel.loadFiltered(id).observeAsState(emptyList())
     var isLoading by remember{ mutableStateOf(true)}
 
     LaunchedEffect(id) {
-        viewModel.liadFiltered(id)
+        viewModel.loadFiltered(id)
         Log.e("FullScreen","Зашли в id\n" +
-                "viewModel.liadFiltered(id)=${viewModel.liadFiltered(id)}")
+                "viewModel.liadFiltered(id)=${viewModel.loadFiltered(id)}")
     }
     LaunchedEffect(items) {
         isLoading=items.isEmpty()                            //Исправить на isEmpty

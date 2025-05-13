@@ -42,7 +42,7 @@ fun CartSummary(itemTotal:Double,tax:Double,delivery:Double){
                 color = colorResource(R.color.black)
             )
             Text(
-                text = "$${itemTotal}",
+                text = "${itemTotal} ₽",
                 fontWeight = FontWeight.Bold
             )
         }
@@ -59,7 +59,7 @@ fun CartSummary(itemTotal:Double,tax:Double,delivery:Double){
                 color = colorResource(R.color.black)
             )
             Text(
-                text = "$${tax}",
+                text = "${tax} ₽",
                 fontWeight = FontWeight.Bold
             )
         }
@@ -76,7 +76,7 @@ fun CartSummary(itemTotal:Double,tax:Double,delivery:Double){
                 color = colorResource(R.color.black)
             )
             Text(
-                text = "$${delivery}",
+                text = "${delivery} ₽",
                 fontWeight = FontWeight.Bold
             )
         }
@@ -100,7 +100,7 @@ fun CartSummary(itemTotal:Double,tax:Double,delivery:Double){
                 color = colorResource(R.color.black)
             )
             Text(
-                text = "$${total}",
+                text = "${total} ₽",
                 fontWeight = FontWeight.Bold
             )
         }

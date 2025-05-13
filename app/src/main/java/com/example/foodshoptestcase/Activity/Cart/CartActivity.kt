@@ -1,5 +1,6 @@
 package com.example.foodshoptestcase.Activity.Cart
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -9,9 +10,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -39,13 +41,14 @@ class CartActivity : BaseActivity() {
 }
 
 
+@SuppressLint("MutableCollectionMutableState")
 @Composable
 fun CartScreen(
     managmentCart: ManagmentCart= ManagmentCart(LocalContext.current),
     onBackClick:()->Unit
 ){
-    var cartItem= remember{ mutableStateOf(managmentCart.getListCart())}
-    val tax=remember{ mutableStateOf(0.0)}
+    var cartItem= remember{ mutableStateOf(managmentCart.listCart)}
+    val tax=remember{ mutableDoubleStateOf(0.0) }
     calculatorCart(managmentCart,tax)
 
     Column(
@@ -90,13 +93,13 @@ fun CartScreen(
             )
         } else {
             CartList(cartItems = cartItem.value, managmentCart) {
-                cartItem.value = managmentCart.getListCart()
+                cartItem.value = managmentCart.listCart
                 calculatorCart(managmentCart, tax)
             }
             CartSummary(
                 itemTotal = managmentCart.getTotalFee(),
-                tax=tax.value,
-                delivery = 10.0
+                tax=tax.doubleValue,
+                delivery = 450.0
             )
 
         }

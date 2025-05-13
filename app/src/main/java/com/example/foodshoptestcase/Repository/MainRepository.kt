@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import com.example.foodshoptestcase.Domain.CategoryModel
 import com.example.foodshoptestcase.Domain.ItemsModel
 import com.example.foodshoptestcase.Domain.SliderModel
-import com.google.android.gms.common.internal.Objects
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase

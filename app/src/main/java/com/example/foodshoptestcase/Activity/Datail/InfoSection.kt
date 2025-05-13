@@ -36,7 +36,7 @@ fun InfoSection(item:ItemsModel){
                     .weight(1f)
             )
             Text(
-                text = "$${item.price}",
+                text = "${item.price} ₽",
                 fontWeight = FontWeight.Bold,
                 fontSize = 22.sp
             )

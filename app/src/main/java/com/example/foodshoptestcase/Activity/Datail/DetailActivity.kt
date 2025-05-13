@@ -3,6 +3,7 @@ package com.example.foodshoptestcase.Activity.Datail
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -49,41 +50,63 @@ class DetailActivity : BaseActivity() {
         item = intent.getSerializableExtra("object") as ItemsModel
         managmentCart = ManagmentCart(this)
 
+        // Синхронизируем состояние lovers с данными из TinyDB
+        val favoriteList = managmentCart.getFavoriteList()
+        val isFavorite = favoriteList.any { it.title == item.title }
+        item.lovers = isFavorite
+        Log.d("DetailActivity", "Initial item.lovers = ${item.lovers}")
+
         setContent {
             DetailScreen(
-                item=item,
-                onBackClick = {finish()},
+                item = item,
+                onBackClick = { finish() },
                 onAddToCartClick = {
-                    item.numberInCart=1
+                    item.numberInCart = 1
                     managmentCart.insertItems(item)
                 },
                 onCartClick = {
-                startActivity(Intent(this,CartActivity::class.java ))
+                    startActivity(Intent(this, CartActivity::class.java))
+                },
+                onFavoriteClick = {
+                    managmentCart.toggleFavorite(item)
+                    Log.d("DetailActivity", "Favorite toggled, item.lovers = ${item.lovers}")
                 }
             )
         }
-
     }
 }
 
 
 @Composable
 private fun DetailScreen(
-    item:ItemsModel,
-    onBackClick:()->Unit,
-    onAddToCartClick:()->Unit,
-    onCartClick:()->Unit
+    item: ItemsModel,
+    onBackClick: () -> Unit,
+    onFavoriteClick: () -> Unit,
+    onAddToCartClick: () -> Unit,
+    onCartClick: () -> Unit
 ) {
-    var selectedImageUrl by remember { mutableStateOf(item.picUrl.first())}
-    var selectedModelIndex by remember { mutableStateOf(-1)}
+    var selectedImageUrl by remember { mutableStateOf(item.picUrl.first()) }
+    var selectedModelIndex by remember { mutableStateOf(-1) }
+    var isFavorite by remember { mutableStateOf(item.lovers) } // Локальное состояние для избранного
 
-
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.White)
-        .verticalScroll(rememberScrollState())
-    ){
-        HeaderSection(selectedImageUrl, item.picUrl, onBackClick) { selectedImageUrl = it }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .verticalScroll(rememberScrollState())
+    ) {
+        HeaderSection(
+            selectedImageUrl = selectedImageUrl,
+            imageUrls = item.picUrl,
+            onBackClick = onBackClick,
+            onFavoriteClick = {
+                onFavoriteClick()
+                isFavorite = !isFavorite // Обновляем локальное состояние
+                Log.d("DetailScreen", "isFavorite updated to $isFavorite")
+            },
+            isFavorite = isFavorite,
+            onImageSelected = { selectedImageUrl = it }
+        )
 
         InfoSection(item)
 
@@ -102,7 +125,6 @@ private fun DetailScreen(
         )
 
         FooterSection(onAddToCartClick, onCartClick)
-
     }
 }
 
@@ -111,18 +133,20 @@ private fun DetailScreen(
 
 @Composable
 private fun HeaderSection(
-    selectedImageUrl:String,
-    imageUrls:List<String>,
+    selectedImageUrl: String,
+    imageUrls: List<String>,
     onBackClick: () -> Unit,
-    onImageSelected:(String)->Unit
-){
-    ConstraintLayout (
+    onFavoriteClick: () -> Unit,
+    isFavorite: Boolean,
+    onImageSelected: (String) -> Unit
+) {
+    ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
             .height(430.dp)
             .padding(bottom = 16.dp)
-    ){
-        val (back,fav,mainImage,thumbnail)=createRefs()
+    ) {
+        val (back, fav, mainImage, thumbnail) = createRefs()
 
         Image(
             painter = rememberAsyncImagePainter(model = selectedImageUrl),
@@ -138,15 +162,22 @@ private fun HeaderSection(
                     end.linkTo(parent.end)
                 }
         )
-        BackButton(onBackClick,Modifier.constrainAs(back){
-            top.linkTo(parent.top)
-            start.linkTo(parent.start)
-        })
+        BackButton(
+            onClick = onBackClick,
+            modifier = Modifier.constrainAs(back) {
+                top.linkTo(parent.top)
+                start.linkTo(parent.start)
+            }
+        )
 
-        FavoriteButton(Modifier.constrainAs(fav){
-            top.linkTo(parent.top)
-            end.linkTo(parent.end)
-        })
+        FavoriteButton(
+            isFavorite = isFavorite,
+            modifier = Modifier.constrainAs(fav) {
+                top.linkTo(parent.top)
+                end.linkTo(parent.end)
+            },
+            onClick = onFavoriteClick
+        )
 
         LazyRow(
             modifier = Modifier
@@ -156,7 +187,6 @@ private fun HeaderSection(
                     bottom.linkTo(parent.bottom)
                     end.linkTo(parent.end)
                     start.linkTo(parent.start)
-
                 }
         ) {
             items(imageUrls){ imageUrls->
@@ -175,22 +205,28 @@ private fun HeaderSection(
 @Composable
 private fun BackButton(
     onClick: () -> Unit,
-    modifier: Modifier=Modifier
-){
+    modifier: Modifier = Modifier
+) {
     Image(
         painter = painterResource(R.drawable.back),
         contentDescription = null,
         modifier = modifier
             .padding(start = 16.dp, top = 48.dp)
-            .clickable { onClick() })
+            .clickable { onClick() }
+    )
 }
 
 @Composable
-private fun FavoriteButton(modifier: Modifier=Modifier
-){
+private fun FavoriteButton(
+    isFavorite: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     Image(
-        painter = painterResource(R.drawable.fav_icon),
+        painter = painterResource(if (isFavorite) R.drawable.fav_icon_selected else R.drawable.fav_icon),
         contentDescription = null,
-        modifier=modifier
-            .padding(start = 16.dp,top=48.dp, end = 16.dp))
+        modifier = modifier
+            .padding(start = 16.dp, top = 48.dp, end = 16.dp)
+            .clickable { onClick() }
+    )
 }

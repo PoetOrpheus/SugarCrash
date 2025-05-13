@@ -127,7 +127,7 @@ fun DashboardScreen(onCartClick:()->Unit) {
                 ) {
                     Column {
                         Text(text = "С возвращением", color = Color.Black)
-                        Text(text = "Денис",
+                        Text(text = "Мария",
                             color = Color.Black,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold)
@@ -228,7 +228,7 @@ fun DashboardScreen(onCartClick:()->Unit) {
                 .constrainAs(bottomMenu) {
                     bottom.linkTo(parent.bottom)
                 },
-            onItemClick =onCartClick
+            onCartClick =onCartClick
         )
 
     }
