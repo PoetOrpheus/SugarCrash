@@ -15,6 +15,12 @@
         android:theme="@style/Theme.FoodShopTestCase"
         tools:targetApi="31">
         <activity
+            android:name=".Activity.Search.SearchResultsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.Search.SearchActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activity.Order.OrderActivity"
             android:exported="false" />
         <activity

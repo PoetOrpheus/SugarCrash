@@ -43,6 +43,7 @@ import com.example.foodshoptestcase.Activity.Favorite.FavoriteActivity
 import com.example.foodshoptestcase.Activity.ListItems.FullListItemsActivity
 import com.example.foodshoptestcase.Activity.Order.OrderActivity
 import com.example.foodshoptestcase.Activity.Profile.ProfileActivity
+import com.example.foodshoptestcase.Activity.Search.SearchActivity
 import com.example.foodshoptestcase.Domain.CategoryModel
 import com.example.foodshoptestcase.Domain.ItemsModel
 import com.example.foodshoptestcase.Domain.SliderModel
@@ -55,7 +56,7 @@ class MainActivity : BaseActivity() {
         setContent {
             DashboardScreen(
                 onCartClick = { startActivity(Intent(this, CartActivity::class.java)) },
-                onSearchClick = { startActivity(Intent(this,ProfileActivity::class.java)) },
+                onSearchClick = { startActivity(Intent(this,SearchActivity::class.java)) },
                 onAllItemClick = { startActivity(Intent(this,FullListItemsActivity::class.java))},
                 onFavoriteClick = {startActivity(Intent(this,FavoriteActivity::class.java))},
                 onOrderClick = {startActivity(Intent(this,OrderActivity::class.java))},
