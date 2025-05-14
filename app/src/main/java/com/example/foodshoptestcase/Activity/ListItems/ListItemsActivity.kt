@@ -68,10 +68,10 @@ private fun ListItemScreen(
     LaunchedEffect(id) {
         viewModel.loadFiltered(id)
         Log.e("FullScreen","Зашли в id\n" +
-                "viewModel.liadFiltered(id)=${viewModel.loadFiltered(id)}")
+                "viewModel.loadFiltered(id)=${viewModel.loadFiltered(id)}")
     }
     LaunchedEffect(items) {
-        isLoading=items.isEmpty()                            //Исправить на isEmpty
+        isLoading=items.isEmpty()
         Log.e("FullScreen","Зашли в items\n" +
                 "isLoading=$isLoading")
     }

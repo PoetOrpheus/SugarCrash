@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,8 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.foodshoptestcase.Activity.BaseActivity
 import com.example.foodshoptestcase.Activity.Cart.CartActivity
+import com.example.foodshoptestcase.Activity.ListItems.FullListItemsActivity
+import com.example.foodshoptestcase.Activity.Profile.ProfileActivity
 import com.example.foodshoptestcase.Domain.CategoryModel
 import com.example.foodshoptestcase.Domain.ItemsModel
 import com.example.foodshoptestcase.Domain.SliderModel
@@ -48,9 +51,11 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            DashboardScreen {
-                startActivity(Intent(this, CartActivity::class.java))
-            }
+            DashboardScreen(
+                onCartClick = { startActivity(Intent(this, CartActivity::class.java)) },
+                onSearchClick = { startActivity(Intent(this,ProfileActivity::class.java)) },
+                onAllItemClick = { startActivity(Intent(this,FullListItemsActivity::class.java))}
+            )
         }
     }
 }
@@ -58,7 +63,10 @@ class MainActivity : BaseActivity() {
 
 
 @Composable
-fun DashboardScreen(onCartClick:()->Unit) {
+fun DashboardScreen(
+    onCartClick:()->Unit,
+    onSearchClick:()->Unit,
+    onAllItemClick:()->Unit) {
     val viewModel = MainViewModel()
     val banners = remember { mutableStateListOf<SliderModel>() }
     val categories = remember { mutableStateListOf<CategoryModel>() }
@@ -134,8 +142,10 @@ fun DashboardScreen(onCartClick:()->Unit) {
 
                     }
                     Row(){
-                    Image(painter = painterResource(R.drawable.search_icon),
-                        contentDescription = null)
+                    Image(
+                        painter = painterResource(R.drawable.search_icon),
+                        contentDescription = null,
+                        modifier = Modifier.clickable { onSearchClick() })
                     Spacer(modifier = Modifier.width(16.dp))
                         Image(painter = painterResource(R.drawable.bell_icon),
                             contentDescription = null)
@@ -193,7 +203,7 @@ fun DashboardScreen(onCartClick:()->Unit) {
                     .padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(
-                        text ="Луччшие продукты",
+                        text ="Лучшие продукты",
                         color=Color.Black,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
@@ -201,6 +211,9 @@ fun DashboardScreen(onCartClick:()->Unit) {
                     Text(
                         text = "Все продукты",
                         color= colorResource(R.color.midBrown),
+                        modifier = Modifier.clickable {
+                            onAllItemClick()
+                        }
 
                     )
                 }

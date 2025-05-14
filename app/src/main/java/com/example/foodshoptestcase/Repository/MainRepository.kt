@@ -30,7 +30,7 @@ class MainRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                listData.value = mutableListOf()
             }
 
         })
@@ -52,7 +52,7 @@ class MainRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                listData.value = mutableListOf()
             }
 
         })
@@ -74,7 +74,7 @@ class MainRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                listData.value = mutableListOf()
             }
 
         })
@@ -99,7 +99,7 @@ class MainRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                listData.value = mutableListOf()
             }
 
         })
