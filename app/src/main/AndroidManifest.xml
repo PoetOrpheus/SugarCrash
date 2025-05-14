@@ -15,6 +15,9 @@
         android:theme="@style/Theme.FoodShopTestCase"
         tools:targetApi="31">
         <activity
+            android:name=".Activity.Order.OrderActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activity.ListItems.FullListItemsActivity"
             android:exported="false" />
         <activity

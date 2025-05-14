@@ -1,5 +1,6 @@
 package com.example.foodshoptestcase.Activity.Profile
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.foodshoptestcase.Activity.BaseActivity
+import com.example.foodshoptestcase.Activity.Order.OrderActivity
 import com.example.foodshoptestcase.R
 import com.example.foodshoptestcase.ui.theme.FoodShopTestCaseTheme
 
@@ -30,7 +32,7 @@ class ProfileActivity : BaseActivity() {
             FoodShopTestCaseTheme {
                 ProfileScreen(
                     onBackClick = { finish() },
-                    onOrdersClick = { /* TODO: Переход на экран заказов */ },
+                    onOrdersClick = { startActivity(Intent(this,OrderActivity::class.java)) },
                     onAddressClick = { /* TODO: Переход на экран адреса */ },
                     onPaymentClick = { /* TODO: Переход на экран оплаты */ },
                     onLogoutClick = { finish() /* TODO: Логика выхода */ }

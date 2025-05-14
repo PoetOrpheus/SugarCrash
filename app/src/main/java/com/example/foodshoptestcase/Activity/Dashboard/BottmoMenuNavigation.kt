@@ -30,7 +30,10 @@ import com.example.foodshoptestcase.R
 @Composable
 fun BottomMenu(
     modifier: Modifier = Modifier,
-    onCartClick: (() -> Unit)? = null
+    onCartClick: (() -> Unit)? = null,
+    onFavoriteClick:(()->Unit)?=null,
+    onOrderClick:(()->Unit)?=null,
+    onProfileClick:(()->Unit)?=null
 ) {
     val context = LocalContext.current
     Row(
@@ -39,23 +42,11 @@ fun BottomMenu(
             .background(colorResource(R.color.green), shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        BottomMenuItems(icon = painterResource(R.drawable.btn_1), text = "Explorer")
+        BottomMenuItems(icon = painterResource(R.drawable.btn_1), text = "Главная")
         BottomMenuItems(icon = painterResource(R.drawable.btn_2), text = "Корзина", onItemClick = onCartClick)
-        BottomMenuItems(
-            icon = painterResource(R.drawable.btn_3),
-            text = "Favorite",
-            onItemClick = {
-                context.startActivity(Intent(context, FavoriteActivity::class.java))
-            }
-        )
-        BottomMenuItems(icon = painterResource(R.drawable.btn_4), text = "Orders")
-        BottomMenuItems(
-            icon = painterResource(R.drawable.btn_5),
-            text = "Profile",
-            onItemClick = {
-                context.startActivity(Intent(context, ProfileActivity::class.java))
-            }
-        )
+        BottomMenuItems(icon = painterResource(R.drawable.btn_3), text = "Избранное", onItemClick = onFavoriteClick)
+        BottomMenuItems(icon = painterResource(R.drawable.btn_4), text = "История заказов", onItemClick = onOrderClick)
+        BottomMenuItems(icon = painterResource(R.drawable.btn_5), text = "Профиль", onItemClick = onProfileClick)
     }
 }
 

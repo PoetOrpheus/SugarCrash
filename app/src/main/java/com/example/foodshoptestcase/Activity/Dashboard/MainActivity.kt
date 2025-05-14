@@ -39,7 +39,9 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.foodshoptestcase.Activity.BaseActivity
 import com.example.foodshoptestcase.Activity.Cart.CartActivity
+import com.example.foodshoptestcase.Activity.Favorite.FavoriteActivity
 import com.example.foodshoptestcase.Activity.ListItems.FullListItemsActivity
+import com.example.foodshoptestcase.Activity.Order.OrderActivity
 import com.example.foodshoptestcase.Activity.Profile.ProfileActivity
 import com.example.foodshoptestcase.Domain.CategoryModel
 import com.example.foodshoptestcase.Domain.ItemsModel
@@ -54,7 +56,10 @@ class MainActivity : BaseActivity() {
             DashboardScreen(
                 onCartClick = { startActivity(Intent(this, CartActivity::class.java)) },
                 onSearchClick = { startActivity(Intent(this,ProfileActivity::class.java)) },
-                onAllItemClick = { startActivity(Intent(this,FullListItemsActivity::class.java))}
+                onAllItemClick = { startActivity(Intent(this,FullListItemsActivity::class.java))},
+                onFavoriteClick = {startActivity(Intent(this,FavoriteActivity::class.java))},
+                onOrderClick = {startActivity(Intent(this,OrderActivity::class.java))},
+                onProfileClick = {startActivity(Intent(this,ProfileActivity::class.java))}
             )
         }
     }
@@ -65,8 +70,12 @@ class MainActivity : BaseActivity() {
 @Composable
 fun DashboardScreen(
     onCartClick:()->Unit,
+    onFavoriteClick:()->Unit,
+    onOrderClick:()->Unit,
+    onProfileClick:()->Unit,
     onSearchClick:()->Unit,
-    onAllItemClick:()->Unit) {
+    onAllItemClick:()->Unit
+) {
     val viewModel = MainViewModel()
     val banners = remember { mutableStateListOf<SliderModel>() }
     val categories = remember { mutableStateListOf<CategoryModel>() }
@@ -241,7 +250,10 @@ fun DashboardScreen(
                 .constrainAs(bottomMenu) {
                     bottom.linkTo(parent.bottom)
                 },
-            onCartClick =onCartClick
+            onCartClick =onCartClick,
+            onFavoriteClick=onFavoriteClick,
+            onOrderClick=onOrderClick,
+            onProfileClick=onProfileClick
         )
 
     }

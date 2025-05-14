@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -151,10 +152,10 @@ fun FullListItemsScreen(
                     }
                     if (index < categories.size - 1) {
                         item {
-                            Divider(
-                                color = colorResource(R.color.lightGrey),
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 8.dp),
                                 thickness = 1.dp,
-                                modifier = Modifier.padding(vertical = 8.dp)
+                                color = colorResource(R.color.lightGrey)
                             )
                         }
                     }
