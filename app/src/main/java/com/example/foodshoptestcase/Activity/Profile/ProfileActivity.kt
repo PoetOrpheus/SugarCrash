@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -24,6 +25,7 @@ import com.example.foodshoptestcase.Activity.BaseActivity
 import com.example.foodshoptestcase.Activity.Order.OrderActivity
 import com.example.foodshoptestcase.R
 import com.example.foodshoptestcase.ui.theme.FoodShopTestCaseTheme
+import com.google.firebase.auth.FirebaseAuth
 
 class ProfileActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,10 +34,12 @@ class ProfileActivity : BaseActivity() {
             FoodShopTestCaseTheme {
                 ProfileScreen(
                     onBackClick = { finish() },
-                    onOrdersClick = { startActivity(Intent(this,OrderActivity::class.java)) },
+                    onOrdersClick = { startActivity(Intent(this, OrderActivity::class.java)) },
                     onAddressClick = { /* TODO: Переход на экран адреса */ },
                     onPaymentClick = { /* TODO: Переход на экран оплаты */ },
-                    onLogoutClick = { finish() /* TODO: Логика выхода */ }
+                    onLogoutClick = {
+                        FirebaseAuth.getInstance().signOut()
+                    }
                 )
             }
         }
@@ -50,12 +54,15 @@ fun ProfileScreen(
     onPaymentClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
+    val user = FirebaseAuth.getInstance().currentUser
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
             .padding(16.dp)
     ) {
+        // Заголовок и кнопка "Назад"
         ConstraintLayout(
             modifier = Modifier
                 .fillMaxWidth()
@@ -64,8 +71,8 @@ fun ProfileScreen(
             val (backBtn, title) = createRefs()
             Text(
                 text = "Профиль",
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                 fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
                 fontSize = 25.sp,
                 color = Color.Black,
                 modifier = Modifier
@@ -74,7 +81,7 @@ fun ProfileScreen(
             )
             Image(
                 painter = painterResource(R.drawable.back),
-                contentDescription = null,
+                contentDescription = "Back",
                 modifier = Modifier
                     .constrainAs(backBtn) {
                         top.linkTo(parent.top)
@@ -102,7 +109,7 @@ fun ProfileScreen(
 
         // Имя пользователя
         Text(
-            text = "Мария Григорьевна",
+            text = user?.displayName ?: "Гость",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black,
@@ -111,7 +118,7 @@ fun ProfileScreen(
 
         // Email
         Text(
-            text = "maria.greek@example.com",
+            text = user?.email ?: "Нет данных",
             fontSize = 16.sp,
             color = Color.Gray,
             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -119,33 +126,16 @@ fun ProfileScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Кнопки
-        ProfileOption(
-           // icon = R.drawable.orders_icon,
-            title = "Мои заказы",
-            onClick = onOrdersClick
-        )
-        ProfileOption(
-           // icon = R.drawable.address_icon,
-            title = "Адрес доставки",
-            onClick = onAddressClick
-        )
-        ProfileOption(
-           // icon = R.drawable.payment_icon,
-            title = "Способы оплаты",
-            onClick = onPaymentClick
-        )
-        ProfileOption(
-           // icon = R.drawable.logout_icon,
-            title = "Выйти",
-            onClick = onLogoutClick
-        )
+        // Кнопки профиля
+        ProfileOption(title = "Мои заказы", onClick = onOrdersClick)
+        ProfileOption(title = "Адрес доставки", onClick = onAddressClick)
+        ProfileOption(title = "Способы оплаты", onClick = onPaymentClick)
+        ProfileOption(title = "Выйти", onClick = onLogoutClick)
     }
 }
 
 @Composable
 fun ProfileOption(
-    //icon: Int,
     title: String,
     onClick: () -> Unit
 ) {
@@ -158,12 +148,6 @@ fun ProfileOption(
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-       /* Image(
-            painter = painterResource(icon),
-            contentDescription = null,
-            modifier = Modifier.size(24.dp)
-        )*/
-        Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = title,
             fontSize = 16.sp,

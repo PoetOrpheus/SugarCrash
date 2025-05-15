@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,9 +41,8 @@ class SplashActivity : BaseActivity() {
 
         setContent {
             SplashScreen(
-                onClick = {
-                    startActivity(Intent(this, MainActivity::class.java))
-                }
+                onClickVhod = { startActivity(Intent(this, MainActivity::class.java)) },
+                onClickReg = {}
             )
         }
     }
@@ -51,7 +51,10 @@ class SplashActivity : BaseActivity() {
 
 @Composable
 @Preview
-fun SplashScreen(onClick:()->Unit={}){
+fun SplashScreen(
+    onClickVhod:()->Unit={},
+    onClickReg: () -> Unit={}
+){
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -88,10 +91,10 @@ fun SplashScreen(onClick:()->Unit={}){
             color = colorResource(R.color.darkBrown),
             textAlign = TextAlign.Center,
             fontSize = 14.sp,
-            lineHeight = 30.sp,
+            lineHeight = 16.sp,
             modifier = Modifier.padding(top = 16.dp)
         )
-        Button(onClick={onClick()},
+        Button(onClick={onClickVhod()},
             shape= RoundedCornerShape(10.dp),
             colors=ButtonDefaults.buttonColors(
                 containerColor = colorResource(R.color.green)
@@ -101,18 +104,20 @@ fun SplashScreen(onClick:()->Unit={}){
 
         ) {
             Text(
-                text = "Приступим",
+                text = "Войти",
                 fontSize = 18.sp,
                 color = Color.White
             )
         }
         Text(
-            text = "У вас есть аккаунт? Зарегистрироваться",
+            text = "Зарегистрироваться",
             color= colorResource(R.color.darkBrown),
             textAlign = TextAlign.Center,
             fontSize = 18.sp,
             lineHeight = 30.sp,
-            modifier = Modifier.padding(top=16.dp)
+            modifier = Modifier
+                .padding(top=16.dp)
+                .clickable { onClickReg() }
         )
     }
 

@@ -1,6 +1,5 @@
 package com.example.foodshoptestcase.Activity.Search
 
-import android.app.Application
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -11,30 +10,35 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardActionScope
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.foodshoptestcase.Activity.BaseActivity
 import com.example.foodshoptestcase.Activity.Datail.DetailActivity
 import com.example.foodshoptestcase.Domain.ItemsModel
@@ -138,36 +142,34 @@ fun SearchScreen(
                     }
                 }
 
-                Column {
-                    if (searchQuery.isEmpty()) {
-                        Text(
-                            text = "Начните вводить запрос",
-                            modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp),
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 18.dp)
+                ) {
+                    if (filteredProducts.isEmpty()) {
+                        androidx.compose.material3.Text(
+                            text = "Такого товара нет",
+                            fontSize = 25.sp,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
                             color = Color.Gray,
-                            fontSize = 16.sp
-                        )
-                    } else if (filteredProducts.isEmpty()) {
-                        Text(
-                            text = "Товары не найдены",
-                            modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp),
-                            color = Color.Gray,
-                            fontSize = 16.sp
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 20.dp)
                         )
                     } else {
-                        LazyColumn(
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
                             contentPadding = PaddingValues(vertical = 8.dp)
                         ) {
-                            items(filteredProducts) { product ->
-                                ProductItem(product, onClick = {
-                                    val intent = Intent(context, DetailActivity::class.java).apply {
-                                        putExtra("object", product)
-                                    }
-                                    context.startActivity(intent)
-                                })
-                                Divider(
-                                    color = colorResource(R.color.lightGrey),
-                                    thickness = 1.dp
-                                )
+                            items(filteredProducts.size) { index ->
+                                ProductCard(filteredProducts[index])
                             }
                         }
                     }
@@ -218,15 +220,75 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit, onSearchClick: () 
     )
 }
 
+
+//TODO: МОЖЕТ БЫТЬ ИЗМЕНИТЬ ОТОБРАЖЕНИЕ КАРТОЧЕК БЕЗ ТЕНИ ЗАКРУГЛЕНИЙ И ПРОЧЕЙ СРАНЕЙ
 @Composable
-fun ProductItem(product: ItemsModel, onClick: () -> Unit) {
-    Text(
-        text = product.title,
+fun ProductCard(product: ItemsModel) {
+    val context = LocalContext.current
+
+    androidx.compose.material3.Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
-            .clickable { onClick() },
-        fontSize = 16.sp,
-        color = colorResource(R.color.darkBrown)
-    )
+            .wrapContentHeight()
+            .clickable {
+                val intent = Intent(context, DetailActivity::class.java).apply {
+                    putExtra("object", product)
+                }
+                context.startActivity(intent)
+            },
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp)
+        ) {
+            AsyncImage(
+                model = product.picUrl.firstOrNull(),
+                contentDescription = product.title,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop
+            )
+            androidx.compose.material3.Text(
+                text = product.title,
+                color = Color.Black,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.star),
+                        contentDescription = "Рейтинг",
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    androidx.compose.material3.Text(
+                        text = product.rating.toString(),
+                        color = Color.Black,
+                        fontSize = 14.sp
+                    )
+                }
+                androidx.compose.material3.Text(
+                    text = "${product.price} ₽",
+                    color = colorResource(R.color.darkBrown),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
 }

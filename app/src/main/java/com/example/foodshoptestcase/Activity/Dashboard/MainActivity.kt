@@ -1,9 +1,7 @@
 package com.example.foodshoptestcase.Activity.Dashboard
 
-import android.app.Application
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,8 +44,10 @@ import com.example.foodshoptestcase.Activity.ListItems.FullListItemsActivity
 import com.example.foodshoptestcase.Activity.Order.OrderActivity
 import com.example.foodshoptestcase.Activity.Profile.ProfileActivity
 import com.example.foodshoptestcase.Activity.Search.SearchActivity
+import com.example.foodshoptestcase.Activity.SignIn.RegisterActivity
 import com.example.foodshoptestcase.R
 import com.example.foodshoptestcase.ViewModel.MainViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,77 +55,67 @@ class MainActivity : BaseActivity() {
         setContent {
             DashboardScreen(
                 onCartClick = { startActivity(Intent(this, CartActivity::class.java)) },
-                onSearchClick = { startActivity(Intent(this,SearchActivity::class.java)) },
-                onAllItemClick = { startActivity(Intent(this,FullListItemsActivity::class.java))},
-                onFavoriteClick = {startActivity(Intent(this,FavoriteActivity::class.java))},
-                onOrderClick = {startActivity(Intent(this,OrderActivity::class.java))},
-                onProfileClick = {startActivity(Intent(this,ProfileActivity::class.java))}
+                onSearchClick = { startActivity(Intent(this, SearchActivity::class.java)) },
+                onAllItemClick = { startActivity(Intent(this, FullListItemsActivity::class.java)) },
+                onFavoriteClick = { startActivity(Intent(this, FavoriteActivity::class.java)) },
+                onOrderClick = { startActivity(Intent(this, OrderActivity::class.java)) },
+                onProfileClick = { startActivity(Intent(this, ProfileActivity::class.java)) }
             )
         }
     }
 }
 
-
-
 @Composable
 fun DashboardScreen(
-    onCartClick:()->Unit,
-    onFavoriteClick:()->Unit,
-    onOrderClick:()->Unit,
-    onProfileClick:()->Unit,
-    onSearchClick:()->Unit,
-    onAllItemClick:()->Unit
+    onCartClick: () -> Unit,
+    onFavoriteClick: () -> Unit,
+    onOrderClick: () -> Unit,
+    onProfileClick: () -> Unit,
+    onSearchClick: () -> Unit,
+    onAllItemClick: () -> Unit
 ) {
     val viewModel: MainViewModel = viewModel()
     val banners by viewModel.banners.observeAsState(initial = mutableListOf())
     val categories by viewModel.categories.observeAsState(initial = mutableListOf())
     val bestSeller by viewModel.items.observeAsState(initial = mutableListOf())
+    val context = LocalContext.current
+    val user by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser) }
+
+    // Проверка авторизации
+    LaunchedEffect(Unit) {
+        if (user == null) {
+            context.startActivity(Intent(context, RegisterActivity::class.java))
+            (context as? BaseActivity)?.finish()
+        }
+    }
 
     var showBannerLoading by remember { mutableStateOf(banners.isEmpty()) }
     var showCategoryLoading by remember { mutableStateOf(categories.isEmpty()) }
     var showBestSellerLoading by remember { mutableStateOf(bestSeller.isEmpty()) }
 
-    //banner
     LaunchedEffect(banners) {
         showBannerLoading = banners.isEmpty()
-        Log.e(
-            "banner", "Баннер должен был загрузиться в launchedEffect\n" +
-                    "showBannerLoading:$showBannerLoading"
-        )
     }
-
-
-    //category
     LaunchedEffect(categories) {
         showCategoryLoading = categories.isEmpty()
-        Log.e(
-            "category", "Категории должны был загрузиться в launchedEffect\n" +
-                    "showCategoryLoading:$showCategoryLoading"
-        )
     }
-
-    //BestSeller
     LaunchedEffect(bestSeller) {
         showBestSellerLoading = bestSeller.isEmpty()
-        Log.e(
-            "bestSeller", "Лучшие продукты должны был загрузиться в launchedEffect\n" +
-                    "showCategoryLoading:$showBestSellerLoading"
-        )
     }
-
 
     ConstraintLayout(modifier = Modifier.background(Color.White)) {
         val (scrollList, bottomMenu) = createRefs()
 
-        LazyColumn(modifier = Modifier
-            .fillMaxSize()
-            .constrainAs(scrollList) {
-                top.linkTo(parent.top)
-                bottom.linkTo(parent.bottom)
-                end.linkTo(parent.end)
-                start.linkTo(parent.start)
-            })
-        {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .constrainAs(scrollList) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                    end.linkTo(parent.end)
+                    start.linkTo(parent.start)
+                }
+        ) {
             item {
                 Row(
                     modifier = Modifier
@@ -138,102 +127,98 @@ fun DashboardScreen(
                 ) {
                     Column {
                         Text(text = "С возвращением", color = Color.Black)
-                        Text(text = "Мария",
+                        Text(
+                            text = user?.displayName ?: "Гость",
                             color = Color.Black,
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold)
-
+                            fontWeight = FontWeight.Bold
+                        )
                     }
-                    Row(){
-                    Image(
-                        painter = painterResource(R.drawable.search_icon),
-                        contentDescription = null,
-                        modifier = Modifier.clickable { onSearchClick() })
-                    Spacer(modifier = Modifier.width(16.dp))
-                        Image(painter = painterResource(R.drawable.bell_icon),
-                            contentDescription = null)
+                    Row {
+                        Image(
+                            painter = painterResource(R.drawable.search_icon),
+                            contentDescription = null,
+                            modifier = Modifier.clickable { onSearchClick() }
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Image(
+                            painter = painterResource(R.drawable.bell_icon),
+                            contentDescription = null
+                        )
                     }
-
                 }
             }
-            //Banners
             item {
-                if(showBannerLoading){
+                if (showBannerLoading) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .height(200.dp),
                         contentAlignment = Alignment.Center
-                    ){
+                    ) {
                         CircularProgressIndicator()
                     }
-                }
-                else{
-                    Log.e("banner","Сейчас должен загузиться баннер")
+                } else {
                     Banners(banners)
                 }
             }
-
             item {
-                Text("Категории ", color = Color.Black,
+                Text(
+                    "Категории",
+                    color = Color.Black,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp))
+                        .padding(horizontal = 16.dp)
+                )
             }
-
-            item{
-                if (showCategoryLoading){
+            item {
+                if (showCategoryLoading) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
                         contentAlignment = Alignment.Center
-                    ){
+                    ) {
                         CircularProgressIndicator()
                     }
-                }
-                else{
+                } else {
                     CategoryList(categories)
                 }
             }
-
-            item{
-                Row(modifier= Modifier
-                    .fillMaxWidth()
-                    .padding(top = 36.dp)
-                    .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween) {
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 36.dp)
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     Text(
-                        text ="Лучшие продукты",
-                        color=Color.Black,
+                        text = "Лучшие продукты",
+                        color = Color.Black,
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = "Все продукты",
-                        color= colorResource(R.color.midBrown),
-                        modifier = Modifier.clickable {
-                            onAllItemClick()
-                        }
-
+                        color = colorResource(R.color.midBrown),
+                        modifier = Modifier.clickable { onAllItemClick() }
                     )
                 }
             }
-
             item {
-                if (showBestSellerLoading){
+                if (showBestSellerLoading) {
                     Box(
-                        modifier= Modifier
+                        modifier = Modifier
                             .fillMaxWidth()
                             .height(200.dp),
                         contentAlignment = Alignment.Center
-                    ){
+                    ) {
                         CircularProgressIndicator()
                     }
-                }
-                else{
+                } else {
                     ListItems(bestSeller)
                 }
             }
@@ -244,11 +229,10 @@ fun DashboardScreen(
                 .constrainAs(bottomMenu) {
                     bottom.linkTo(parent.bottom)
                 },
-            onCartClick =onCartClick,
-            onFavoriteClick=onFavoriteClick,
-            onOrderClick=onOrderClick,
-            onProfileClick=onProfileClick
+            onCartClick = onCartClick,
+            onFavoriteClick = onFavoriteClick,
+            onOrderClick = onOrderClick,
+            onProfileClick = onProfileClick
         )
-
     }
 }
