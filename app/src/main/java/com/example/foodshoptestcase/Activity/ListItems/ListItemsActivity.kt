@@ -1,5 +1,6 @@
 package com.example.foodshoptestcase.Activity.ListItems
 
+import android.app.Application
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
@@ -23,19 +24,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.foodshoptestcase.Activity.BaseActivity
 import com.example.foodshoptestcase.Activity.Dashboard.ListItemsFullSizeVertical
 import com.example.foodshoptestcase.R
 import com.example.foodshoptestcase.ViewModel.MainViewModel
 
 class ListItemsActivity : BaseActivity() {
-    private val viewModel=MainViewModel()
     private var id:String=""
     private var title:String=""
 
@@ -48,7 +50,6 @@ class ListItemsActivity : BaseActivity() {
             ListItemScreen(
                 title=title,
                 onBackClick = {finish()},
-                viewModel=viewModel,
                 id=id
             )
         }
@@ -59,17 +60,12 @@ class ListItemsActivity : BaseActivity() {
 private fun ListItemScreen(
     title: String,
     onBackClick:()->Unit,
-    viewModel: MainViewModel,
     id:String
 ) {
-    val items by viewModel.loadFiltered(id).observeAsState(emptyList())
+    val viewModel: MainViewModel = viewModel()
+    val items by viewModel.getFilteredItems(id).observeAsState(emptyList())
     var isLoading by remember{ mutableStateOf(true)}
 
-    LaunchedEffect(id) {
-        viewModel.loadFiltered(id)
-        Log.e("FullScreen","Зашли в id\n" +
-                "viewModel.loadFiltered(id)=${viewModel.loadFiltered(id)}")
-    }
     LaunchedEffect(items) {
         isLoading=items.isEmpty()
         Log.e("FullScreen","Зашли в items\n" +

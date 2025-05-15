@@ -20,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -36,7 +35,7 @@ import com.example.foodshoptestcase.Domain.CategoryModel
 import com.example.foodshoptestcase.R
 
 @Composable
-fun CategoryList(categories: SnapshotStateList<CategoryModel>) {
+fun CategoryList(categories: MutableList<CategoryModel>) {
     var selectedIndex by remember { mutableStateOf(-1) }
     val context = LocalContext.current
 

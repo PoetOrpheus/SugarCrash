@@ -1,5 +1,6 @@
 package com.example.foodshoptestcase.Activity.ListItems
 
+import android.app.Application
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
@@ -25,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.foodshoptestcase.Activity.BaseActivity
 import com.example.foodshoptestcase.Activity.Dashboard.BestSellerItem
 import com.example.foodshoptestcase.Domain.CategoryModel
@@ -40,13 +43,10 @@ import com.example.foodshoptestcase.R
 import com.example.foodshoptestcase.ViewModel.MainViewModel
 
 class FullListItemsActivity : BaseActivity() {
-    private val viewModel = MainViewModel()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             FullListItemsScreen(
-                viewModel = viewModel,
                 onBackClick = { finish() }
             )
         }
@@ -55,10 +55,11 @@ class FullListItemsActivity : BaseActivity() {
 
 @Composable
 fun FullListItemsScreen(
-    viewModel: MainViewModel,
     onBackClick: () -> Unit
 ) {
-    val categories by viewModel.loadCategory().observeAsState(initial = emptyList())
+    val viewModel: MainViewModel = viewModel()
+
+    val categories by viewModel.categories.observeAsState(initial = emptyList())
     var showCategoryLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(categories) {
@@ -171,11 +172,11 @@ fun CategorySection(
     viewModel: MainViewModel,
     id: String
 ) {
-    val items by viewModel.loadFiltered(id).observeAsState(initial = emptyList())
+    val items by viewModel.getFilteredItems(id).observeAsState(initial = emptyList())
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(id) {
-        viewModel.loadFiltered(id)
+        viewModel.getFilteredItems(id)
         Log.d("CategorySection", "Loading items for category ID: $id")
     }
 

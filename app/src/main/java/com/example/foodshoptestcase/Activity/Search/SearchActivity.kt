@@ -1,5 +1,6 @@
 package com.example.foodshoptestcase.Activity.Search
 
+import android.app.Application
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -12,6 +13,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -27,12 +29,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.foodshoptestcase.Activity.BaseActivity
 import com.example.foodshoptestcase.Activity.Datail.DetailActivity
 import com.example.foodshoptestcase.Domain.ItemsModel
@@ -40,23 +42,22 @@ import com.example.foodshoptestcase.R
 import com.example.foodshoptestcase.ViewModel.MainViewModel
 
 class SearchActivity : BaseActivity() {
-    private val viewModel = MainViewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            SearchScreen(viewModel = viewModel, onBackClick = { finish() })
+            SearchScreen(onBackClick = { finish() })
         }
     }
 }
 
 @Composable
 fun SearchScreen(
-    viewModel: MainViewModel,
     onBackClick: () -> Unit,
 ) {
+    val viewModel: MainViewModel = viewModel()
     val context = LocalContext.current
-    val allProducts by viewModel.loadBestSeller().observeAsState(initial = null)
+    val allProducts by viewModel.items.observeAsState(initial = null)
     var searchQuery by remember { mutableStateOf("") }
 
     Column(
@@ -102,12 +103,10 @@ fun SearchScreen(
                 query = searchQuery,
                 onQueryChange = { searchQuery = it },
                 onSearchClick = {
-                    if (searchQuery.isNotEmpty()) {
-                        val intent = Intent(context, SearchResultsActivity::class.java).apply {
-                            putExtra("query", searchQuery)
-                        }
-                        context.startActivity(intent)
+                    val intent = Intent(context, SearchResultsActivity::class.java).apply {
+                        putExtra("query", searchQuery)
                     }
+                    context.startActivity(intent)
                 }
             )
 
@@ -208,13 +207,8 @@ fun SearchBar(query: String, onQueryChange: (String) -> Unit, onSearchClick: () 
             }
         },
         singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Search
-        ),
-        keyboardActions = KeyboardActions(
-            onSearch = { onSearchClick() }
-        ),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+        keyboardActions = KeyboardActions(onAny = {onSearchClick()}),
         colors = TextFieldDefaults.textFieldColors(
             backgroundColor = Color.White,
             focusedIndicatorColor = colorResource(R.color.midBrown),

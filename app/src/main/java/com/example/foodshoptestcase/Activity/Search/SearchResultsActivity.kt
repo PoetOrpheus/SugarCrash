@@ -1,5 +1,6 @@
 package com.example.foodshoptestcase.Activity.Search
 
+import android.app.Application
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
@@ -40,6 +41,7 @@ import com.example.foodshoptestcase.R
 import com.example.foodshoptestcase.ViewModel.MainViewModel
 import android.content.Intent
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.foodshoptestcase.Activity.Datail.DetailActivity
 import com.example.foodshoptestcase.Domain.ItemsModel
 
@@ -48,11 +50,9 @@ class SearchResultsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewModel = MainViewModel()
         query = intent.getStringExtra("query") as String
         setContent {
             SearchResultScreen(
-                viewModel = viewModel,
                 backClick = { finish() },
                 searchQuery = query
             )
@@ -62,11 +62,12 @@ class SearchResultsActivity : AppCompatActivity() {
 
 @Composable
 private fun SearchResultScreen(
-    viewModel: MainViewModel,
     backClick: () -> Unit,
     searchQuery: String
 ) {
-    val allProducts by viewModel.loadBestSeller().observeAsState(initial = null)
+    val viewModel: MainViewModel = viewModel()
+
+    val allProducts by viewModel.items.observeAsState(initial = null)
 
     Column(
         modifier = Modifier
