@@ -223,7 +223,7 @@ private fun FavoriteButton(
     onClick: () -> Unit
 ) {
     Image(
-        painter = painterResource(if (isFavorite) R.drawable.fav_icon_selected else R.drawable.fav_icon),
+        painter = painterResource(if (isFavorite) R.drawable.love else R.drawable.fav_icon),
         contentDescription = null,
         modifier = modifier
             .padding(start = 16.dp, top = 48.dp, end = 16.dp)

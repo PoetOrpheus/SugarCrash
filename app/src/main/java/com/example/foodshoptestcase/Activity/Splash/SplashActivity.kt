@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.foodshoptestcase.Activity.BaseActivity
 import com.example.foodshoptestcase.Activity.Dashboard.MainActivity
+import com.example.foodshoptestcase.Activity.SignIn.RegisterActivity
+import com.example.foodshoptestcase.Activity.SignIn.VhodActivity
 import com.example.foodshoptestcase.R
 
 @SuppressLint("CustomSplashScreen")
@@ -35,15 +37,16 @@ class SplashActivity : BaseActivity() {
 
         setContent {
             SplashScreen(
-                onClickVhod = { startActivity(Intent(this, MainActivity::class.java)) },
-                onClickReg = {}
+                onClickButton={startActivity(Intent(this,MainActivity::class.java))},
+                onClickVhod = { startActivity(Intent(this, VhodActivity::class.java)) },
+                onClickReg = {startActivity(Intent(this,RegisterActivity::class.java))}
             )
         }
     }
 }
 
 @Composable
-fun SplashScreen(onClickVhod: () -> Unit, onClickReg: () -> Unit) {
+fun SplashScreen(onClickButton:()->Unit,onClickVhod: () -> Unit, onClickReg: () -> Unit) {
     // Получаем текущую ширину экрана в dp
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp.toFloat()
@@ -100,7 +103,7 @@ fun SplashScreen(onClickVhod: () -> Unit, onClickReg: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(paddingBetweenSecondTextAndButtonDp))
         Button(
-            onClick = onClickVhod,
+            onClick = onClickButton,
             modifier = Modifier.width(buttonWidthDp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = colorResource(R.color.purple)
@@ -133,5 +136,5 @@ fun SplashScreen(onClickVhod: () -> Unit, onClickReg: () -> Unit) {
 @Preview
 @Composable
 fun SplashScreenPreview() {
-    SplashScreen(onClickVhod = {}, onClickReg = {})
+    SplashScreen(onClickVhod = {}, onClickReg = {}, onClickButton = {})
 }

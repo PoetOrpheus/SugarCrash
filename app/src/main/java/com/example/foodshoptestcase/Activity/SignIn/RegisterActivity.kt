@@ -17,16 +17,13 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -89,11 +86,11 @@ fun RegisterScreen(googleAuthUiClient: GoogleAuthUiClient) {
                         intent = result.data ?: return@launch
                     )
                     if (signInResult.data != null) {
-                        Toast.makeText(context, "Sign-in successful", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Вход успешен", Toast.LENGTH_LONG).show()
                         context.startActivity(Intent(context, MainActivity::class.java))
                         (context as? BaseActivity)?.finish()
                     } else {
-                        Toast.makeText(context, "Sign-in error: ${signInResult.errorMessage}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Ошибка входа: ${signInResult.errorMessage}", Toast.LENGTH_LONG).show()
                         isLoading = false
                     }
                 }
@@ -160,7 +157,7 @@ fun RegisterScreen(googleAuthUiClient: GoogleAuthUiClient) {
                     IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                         Image(
                             painter = painterResource(
-                                id = if (isPasswordVisible) R.drawable.fav_icon else R.drawable.fav_icon_selected
+                                id = if (isPasswordVisible) R.drawable.eye else R.drawable.closed_eye
                             ),
                             contentDescription = "Toggle password visibility"
                         )

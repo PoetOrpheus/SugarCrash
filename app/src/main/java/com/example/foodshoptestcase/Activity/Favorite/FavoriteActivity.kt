@@ -163,7 +163,7 @@ fun FavoriteItemCard(
             )
         }
         Image(
-            painter = painterResource(if (item.lovers) R.drawable.fav_icon_selected else R.drawable.fav_icon),
+            painter = painterResource(if (item.lovers) R.drawable.love else R.drawable.fav_icon),
             contentDescription = null,
             modifier = Modifier
                 .size(24.dp)
