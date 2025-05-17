@@ -13,4 +13,8 @@
     <color name="green">#00532d</color>
     <color name="lightGrey">#efefef</color>
     <color name="grey">#919191</color>
+    <color name="forReg">#F4FF03A9</color>
+    <color name="purple">#400440</color>
+    <color name="beige">#F5F5DC</color>
+    <color name="brownForSplash">#CB9C68</color>
 </resources>

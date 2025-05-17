@@ -39,6 +39,7 @@ class ProfileActivity : BaseActivity() {
                     onPaymentClick = { /* TODO: Переход на экран оплаты */ },
                     onLogoutClick = {
                         FirebaseAuth.getInstance().signOut()
+
                     }
                 )
             }
