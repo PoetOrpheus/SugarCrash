@@ -35,10 +35,9 @@ import com.example.foodshoptestcase.Domain.CategoryModel
 import com.example.foodshoptestcase.R
 
 @Composable
-fun CategoryList(categories: MutableList<CategoryModel>) {
-    var selectedIndex by remember { mutableStateOf(-1) }
+fun CategoryList(categories: MutableList<CategoryModel>, resumeCount: Int) {
+    var selectedIndex by remember(resumeCount){ mutableStateOf(-1)}
     val context = LocalContext.current
-
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(24.dp),

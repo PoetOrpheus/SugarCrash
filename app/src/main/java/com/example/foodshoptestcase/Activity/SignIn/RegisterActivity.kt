@@ -149,8 +149,9 @@ fun RegisterScreen(googleAuthUiClient: GoogleAuthUiClient) {
                 label = { Text("Пароль") },
                 leadingIcon = {
                     Image(
-                        painter = painterResource(id = R.drawable.bell),
-                        contentDescription = "Password"
+                        painter = painterResource(id = R.drawable.lock),
+                        contentDescription = "Password",
+                        modifier = Modifier.size(24.dp)
                     )
                 },
                 trailingIcon = {
@@ -159,10 +160,12 @@ fun RegisterScreen(googleAuthUiClient: GoogleAuthUiClient) {
                             painter = painterResource(
                                 id = if (isPasswordVisible) R.drawable.eye else R.drawable.closed_eye
                             ),
-                            contentDescription = "Toggle password visibility"
+                            contentDescription = "Toggle password visibility",
+                            modifier=Modifier.size(24.dp)
                         )
                     }
                 },
+
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),

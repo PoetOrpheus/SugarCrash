@@ -15,6 +15,6 @@ data class ItemsModel(
     var sellerName:String="",
     var sellerPic:String="",
     var sellerTell:Int=0,
-    var lovers:Boolean=false
+    var lovers:Boolean=false,
 ):Serializable {
 }

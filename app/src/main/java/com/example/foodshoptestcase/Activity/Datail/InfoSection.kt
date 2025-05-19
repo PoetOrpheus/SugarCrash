@@ -56,7 +56,7 @@ fun InfoSection(item:ItemsModel){
                 modifier = Modifier.size(60.dp)
             )
             Text(
-                text = "Юлия Владимировна",
+                text = item.sellerName,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .padding(start = 16.dp)

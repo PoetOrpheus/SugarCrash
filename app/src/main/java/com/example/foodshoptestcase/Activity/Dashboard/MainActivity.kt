@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -50,6 +51,7 @@ import com.example.foodshoptestcase.ViewModel.MainViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : BaseActivity() {
+    private val resumeCount = mutableStateOf(0)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -59,14 +61,21 @@ class MainActivity : BaseActivity() {
                 onAllItemClick = { startActivity(Intent(this, FullListItemsActivity::class.java)) },
                 onFavoriteClick = { startActivity(Intent(this, FavoriteActivity::class.java)) },
                 onOrderClick = { startActivity(Intent(this, OrderActivity::class.java)) },
-                onProfileClick = { startActivity(Intent(this, ProfileActivity::class.java)) }
+                onProfileClick = { startActivity(Intent(this, ProfileActivity::class.java)) },
+                resumeCount =resumeCount.value
             )
         }
+
+    }
+    override fun onResume() {
+        super.onResume()
+        resumeCount.value++
     }
 }
 
 @Composable
 fun DashboardScreen(
+    resumeCount: Int,
     onCartClick: () -> Unit,
     onFavoriteClick: () -> Unit,
     onOrderClick: () -> Unit,
@@ -79,13 +88,35 @@ fun DashboardScreen(
     val categories by viewModel.categories.observeAsState(initial = mutableListOf())
     val bestSeller by viewModel.items.observeAsState(initial = mutableListOf())
     val context = LocalContext.current
-    val user by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser) }
+    var user by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser) }
 
     // Проверка авторизации
     LaunchedEffect(Unit) {
         if (user == null) {
             context.startActivity(Intent(context, RegisterActivity::class.java))
             (context as? BaseActivity)?.finish()
+        }
+    }
+    DisposableEffect(Unit) {
+        val auth = FirebaseAuth.getInstance()
+        val listener = object : FirebaseAuth.AuthStateListener {
+            override fun onAuthStateChanged(auth: FirebaseAuth) {
+                user = auth.currentUser
+            }
+        }
+
+        // Add the listener
+        auth.addAuthStateListener(listener)
+
+        // Handle the initial user check
+        if (user == null) {
+            context.startActivity(Intent(context, RegisterActivity::class.java))
+            (context as? BaseActivity)?.finish()
+        }
+
+        // Cleanup when the effect is disposed
+        onDispose {
+            auth.removeAuthStateListener(listener)
         }
     }
 
@@ -184,7 +215,7 @@ fun DashboardScreen(
                         CircularProgressIndicator()
                     }
                 } else {
-                    CategoryList(categories)
+                    CategoryList(categories, resumeCount =resumeCount)
                 }
             }
             item {

@@ -175,8 +175,9 @@ fun LoginScreen(context: Context,googleAuthUiClient: GoogleAuthUiClient) {
                     label = { Text("Пароль") },
                     leadingIcon = {
                         Image(
-                            painter = painterResource(id = R.drawable.bell),
-                            contentDescription = "Password"
+                            painter = painterResource(id = R.drawable.lock),
+                            contentDescription = "Password",
+                            modifier=Modifier.size(24.dp)
                         )
                     },
                     trailingIcon = {
@@ -185,7 +186,8 @@ fun LoginScreen(context: Context,googleAuthUiClient: GoogleAuthUiClient) {
                                 painter = painterResource(
                                     id = if (isPasswordVisible) R.drawable.eye else R.drawable.closed_eye
                                 ),
-                                contentDescription = if (isPasswordVisible) "Скрыть пароль" else "Показать пароль"
+                                contentDescription = if (isPasswordVisible) "Скрыть пароль" else "Показать пароль",
+                                modifier=Modifier.size(24.dp)
                             )
                         }
                     },

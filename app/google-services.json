@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "838592384479-b4dn93bb93olviej2nunnemi5al4mftq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.foodshoptestcase",
+            "certificate_hash": "d50e3b21ebcab79f508332012fff06bfa785fb52"
+          }
+        },
+        {
+          "client_id": "838592384479-lob9a4mejlc1r64j0ojdnl705gl7i9fu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.foodshoptestcase",
+            "certificate_hash": "566bd2da17569a2bec068a2bfe25c75ac6010034"
+          }
+        },
+        {
           "client_id": "838592384479-4ortrc37tos3t0002hcjtm5s11ummdef.apps.googleusercontent.com",
           "client_type": 3
         }

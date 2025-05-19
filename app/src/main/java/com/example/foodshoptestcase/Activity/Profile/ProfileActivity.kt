@@ -2,8 +2,17 @@ package com.example.foodshoptestcase.Activity.Profile
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -18,7 +27,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -27,7 +35,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -44,19 +52,59 @@ import com.example.foodshoptestcase.ui.theme.FoodShopTestCaseTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import java.io.File
+import java.io.FileOutputStream
 
-// Сохранение изображения локально
-fun saveImageToInternalStorage(context: Context, imageUri: Uri): File? {
+// Сохранение и обрезка изображения локально
+fun saveAndCropImageToInternalStorage(context: Context, imageUri: Uri): File? {
     return try {
-        val inputStream = context.contentResolver.openInputStream(imageUri) ?: return null
-        val file = File(context.filesDir, "profile_photo.jpg")
-        file.outputStream().use { outputStream ->
-            inputStream.copyTo(outputStream)
+        val inputStream = context.contentResolver.openInputStream(imageUri)
+        if (inputStream == null) {
+            Log.e("Profile", "Не удалось открыть InputStream для URI: $imageUri")
+            return null
         }
+        val bitmap = BitmapFactory.decodeStream(inputStream)
+        inputStream.close()
+
+        if (bitmap == null) {
+            Log.e("Profile", "Не удалось декодировать битмап из URI: $imageUri")
+            return null
+        }
+
+        // Обрезка изображения в круг
+        val croppedBitmap = getCircularBitmap(bitmap)
+        bitmap.recycle()
+
+        val file = File(context.filesDir, "profile_photo.jpg")
+        FileOutputStream(file).use { out ->
+            croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+            Log.d("Profile", "Изображение успешно сохранено: ${file.absolutePath}")
+        }
+        croppedBitmap.recycle()
         file
     } catch (e: Exception) {
+        Log.e("Profile", "Ошибка при сохранении изображения: ${e.message}", e)
         null
     }
+}
+
+private fun getCircularBitmap(bitmap: Bitmap): Bitmap {
+    val size = minOf(bitmap.width, bitmap.height)
+    val x = (bitmap.width - size) / 2
+    val y = (bitmap.height - size) / 2
+    val squareBitmap = Bitmap.createBitmap(bitmap, x, y, size, size)
+
+    val output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(output)
+    val paint = Paint()
+    val rect = Rect(0, 0, size, size)
+    paint.isAntiAlias = true
+    canvas.drawARGB(0, 0, 0, 0)
+    paint.color = Color.WHITE
+    canvas.drawCircle(size / 2f, size / 2f, size / 2f, paint)
+    paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+    canvas.drawBitmap(squareBitmap, rect, rect, paint)
+    squareBitmap.recycle()
+    return output
 }
 
 class ProfileActivity : ComponentActivity() {
@@ -96,34 +144,53 @@ fun ProfileScreen(
     var isEditing by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf(user?.displayName ?: "") }
     var localPhotoPath by remember { mutableStateOf<String?>(null) }
+    var photoTimestamp by remember { mutableStateOf(0L) }
     val context = LocalContext.current
+
+    // Загрузка локального фото при старте
+    LaunchedEffect(Unit) {
+        val file = File(context.filesDir, "profile_photo.jpg")
+        if (file.exists()) {
+            localPhotoPath = file.absolutePath
+            photoTimestamp = file.lastModified()
+            Log.d("Profile", "Локальное фото найдено: $localPhotoPath")
+        } else {
+            Log.d("Profile", "Локальное фото не найдено")
+        }
+    }
 
     // Лаунчер для выбора изображения
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { selectedUri ->
-            val file = saveImageToInternalStorage(context, selectedUri)
-            file?.let {
-                localPhotoPath = it.absolutePath
-                // TODO: В будущем загрузить это изображение в Firebase Storage и обновить user.photoUrl
+            Log.d("Profile", "Выбрано изображение: $selectedUri")
+            val file = saveAndCropImageToInternalStorage(context, selectedUri)
+            if (file != null) {
+                localPhotoPath = file.absolutePath
+                photoTimestamp = System.currentTimeMillis()
+                Log.d("Profile", "Фото обновлено: $localPhotoPath, timestamp: $photoTimestamp")
+            } else {
+                Log.e("Profile", "Не удалось сохранить фото")
+                // Можно добавить Toast для уведомления пользователя
+                android.widget.Toast.makeText(context, "Ошибка при сохранении фото", android.widget.Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.White
+        color = androidx.compose.ui.graphics.Color.White
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .background(Color.White)
+                .background(androidx.compose.ui.graphics.Color.White)
                 .padding(16.dp)
         ) {
             ConstraintLayout(
                 modifier = Modifier
                     .padding(top = 36.dp)
-                    .background(Color.White)
+                    .background(androidx.compose.ui.graphics.Color.White)
             ) {
                 val (backBtn, titleTxt) = createRefs()
 
@@ -156,7 +223,7 @@ fun ProfileScreen(
                     .padding(vertical = 16.dp),
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+                colors = CardDefaults.cardColors(containerColor = ComposeColor.White)
             ) {
                 Column(
                     modifier = Modifier.padding(24.dp),
@@ -174,7 +241,7 @@ fun ProfileScreen(
                         modifier = Modifier
                             .size(120.dp)
                             .clip(CircleShape)
-                            .background(Color.LightGray)
+                            .background(ComposeColor.LightGray)
                             .clickable { launcher.launch("image/*") }
                     )
                     Spacer(modifier = Modifier.height(24.dp))
@@ -194,15 +261,15 @@ fun ProfileScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(12.dp),
                                     colors = TextFieldDefaults.outlinedTextFieldColors(
-                                        focusedBorderColor = Color.Blue,
-                                        unfocusedBorderColor = Color.Gray
+                                        focusedBorderColor = ComposeColor.Blue,
+                                        unfocusedBorderColor = ComposeColor.Gray
                                     )
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Text(
                                     text = user?.email ?: "Нет почты",
                                     fontSize = 16.sp,
-                                    color = Color.Black.copy(alpha = 0.6f),
+                                    color = ComposeColor.Black.copy(alpha = 0.6f),
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }
@@ -212,20 +279,20 @@ fun ProfileScreen(
                             text = name.ifEmpty { "Гость" },
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Black,
+                            color = ComposeColor.Black,
                             modifier = Modifier
                                 .clickable { isEditing = true }
                                 .padding(vertical = 8.dp)
                         )
-                        Divider(
-                            color = Color.Gray,
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 8.dp),
                             thickness = 1.dp,
-                            modifier = Modifier.padding(vertical = 8.dp)
+                            color = ComposeColor.Gray
                         )
                         Text(
                             text = user?.email ?: "Нет почты",
                             fontSize = 16.sp,
-                            color = Color.Black.copy(alpha = 0.6f),
+                            color = ComposeColor.Black.copy(alpha = 0.6f),
                             modifier = Modifier.padding(vertical = 8.dp)
                         )
                     }
@@ -254,8 +321,8 @@ fun ProfileScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Blue,
-                        contentColor = Color.White
+                        containerColor = ComposeColor.Blue,
+                        contentColor = ComposeColor.White
                     )
                 ) {
                     Text("Сохранить", fontSize = 16.sp, fontWeight = FontWeight.Medium)
@@ -277,10 +344,21 @@ fun ProfileScreen(
                 title = "Способы оплаты",
                 onClick = onPaymentClick
             )
-            ProfileOption(
-                title = "Выйти",
-                onClick = onLogoutClick
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onLogoutClick() }
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    text = "Выйти",
+                    fontSize = 16.sp,
+                    color = ComposeColor.Black,
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
     }
 }
@@ -298,13 +376,13 @@ fun ProfileOption(title: String, onClick: () -> Unit) {
         Text(
             text = title,
             fontSize = 16.sp,
-            color = Color.Black,
+            color = ComposeColor.Black,
             fontWeight = FontWeight.Medium
         )
     }
-    Divider(
-        color = Color.Gray.copy(alpha = 0.2f),
+    HorizontalDivider(
+        modifier = Modifier.padding(horizontal = 16.dp),
         thickness = 1.dp,
-        modifier = Modifier.padding(horizontal = 16.dp)
+        color = ComposeColor.Gray.copy(alpha = 0.2f)
     )
 }
