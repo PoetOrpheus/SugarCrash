@@ -1,5 +1,6 @@
 package com.example.foodshoptestcase.Activity.Favorite
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -25,7 +27,12 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.rememberAsyncImagePainter
 import com.example.foodshoptestcase.Activity.BaseActivity
+import com.example.foodshoptestcase.Activity.Cart.CartActivity
+import com.example.foodshoptestcase.Activity.Dashboard.BottomMenu
+import com.example.foodshoptestcase.Activity.Dashboard.MainActivity
 import com.example.foodshoptestcase.Activity.Datail.DetailActivity
+import com.example.foodshoptestcase.Activity.Order.OrderActivity
+import com.example.foodshoptestcase.Activity.Profile.ProfileActivity
 import com.example.foodshoptestcase.Domain.ItemsModel
 import com.example.foodshoptestcase.Helper.ManagmentCart
 import com.example.foodshoptestcase.R
@@ -43,79 +50,101 @@ class FavoriteActivity : BaseActivity() {
                         val intent = Intent(this, DetailActivity::class.java)
                         intent.putExtra("object", item)
                         startActivity(intent)
-                    }
+                    },
+                    //Для боттом меню
+                    onProfileClick = { startActivity(Intent(this, ProfileActivity::class.java)) },
+                    onCartClick = { startActivity(Intent(this, CartActivity::class.java)) },
+                    onOrderClick = { startActivity(Intent(this, OrderActivity::class.java)) },
+                    onHomeClick = { startActivity(Intent(this, MainActivity::class.java)) },
                 )
             }
         }
     }
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun FavoriteScreen(
     managmentCart: ManagmentCart,
     onBackClick: () -> Unit,
-    onItemClick: (ItemsModel) -> Unit
+    onItemClick: (ItemsModel) -> Unit,
+    onHomeClick:()->Unit,
+    onCartClick:()->Unit,
+    onOrderClick:()->Unit,
+    onProfileClick:()->Unit,
 ) {
     val favoriteItems = remember { mutableStateOf(managmentCart.getFavoriteList()) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(16.dp)
-    ) {
-        ConstraintLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 36.dp)
-        ) {
-            val (backBtn, title) = createRefs()
-            Text(
-                text = "Избранное",
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                fontSize = 25.sp,
-                color = Color.Black,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .constrainAs(title) { centerTo(parent) }
-            )
-            Image(
-                painter = painterResource(R.drawable.back),
-                contentDescription = null,
-                modifier = Modifier
-                    .constrainAs(backBtn) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                    }
-                    .clickable { onBackClick() }
+    Scaffold(
+        bottomBar = {
+            BottomMenu(
+                modifier = Modifier.fillMaxWidth(),
+                onHomeClick = onHomeClick,
+                onCartClick = onCartClick,
+                onOrderClick = onOrderClick,
+                onProfileClick = onProfileClick
             )
         }
-
-        if (favoriteItems.value.isEmpty()) {
-            Text(
-                text = "Избранное пусто",
-                color = Color.Black,
-                fontSize = 18.sp,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .padding(16.dp)
+        ) {
+            ConstraintLayout(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
+                    .padding(top = 36.dp)
             ) {
-                items(favoriteItems.value) { item ->
-                    FavoriteItemCard(
-                        item = item,
-                        onClick = { onItemClick(item) },
-                        onToggleFavorite = {
-                            managmentCart.toggleFavorite(item)
-                            favoriteItems.value = managmentCart.getFavoriteList()
+                val (backBtn, title) = createRefs()
+                Text(
+                    text = "Избранное",
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 25.sp,
+                    color = Color.Black,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .constrainAs(title) { centerTo(parent) }
+                )
+                Image(
+                    painter = painterResource(R.drawable.back),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .constrainAs(backBtn) {
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                            start.linkTo(parent.start)
                         }
-                    )
+                        .clickable { onBackClick() }
+                )
+            }
+
+            if (favoriteItems.value.isEmpty()) {
+                Text(
+                    text = "Избранное пусто",
+                    color = Color.Black,
+                    fontSize = 18.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(favoriteItems.value) { item ->
+                        FavoriteItemCard(
+                            item = item,
+                            onClick = { onItemClick(item) },
+                            onToggleFavorite = {
+                                managmentCart.toggleFavorite(item)
+                                favoriteItems.value = managmentCart.getFavoriteList()
+                            }
+                        )
+                    }
                 }
             }
         }

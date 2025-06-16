@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Scaffold
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -123,6 +125,7 @@ fun DashboardScreen(
     var showBannerLoading by remember { mutableStateOf(banners.isEmpty()) }
     var showCategoryLoading by remember { mutableStateOf(categories.isEmpty()) }
     var showBestSellerLoading by remember { mutableStateOf(bestSeller.isEmpty()) }
+    val scaffoldState = rememberScaffoldState()
 
     LaunchedEffect(banners) {
         showBannerLoading = banners.isEmpty()
@@ -133,19 +136,23 @@ fun DashboardScreen(
     LaunchedEffect(bestSeller) {
         showBestSellerLoading = bestSeller.isEmpty()
     }
-
-    ConstraintLayout(modifier = Modifier.background(Color.White)) {
-        val (scrollList, bottomMenu) = createRefs()
+    Scaffold(
+        bottomBar = {
+            BottomMenu(
+                modifier = Modifier.fillMaxWidth(),
+                onCartClick = onCartClick,
+                onFavoriteClick = onFavoriteClick,
+                onOrderClick = onOrderClick,
+                onProfileClick = onProfileClick
+            )
+        },
+        scaffoldState = scaffoldState
+    ) { paddingValues ->
 
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .constrainAs(scrollList) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
-                    end.linkTo(parent.end)
-                    start.linkTo(parent.start)
-                }
+                .padding(paddingValues)
         ) {
             item {
                 Row(
@@ -215,7 +222,7 @@ fun DashboardScreen(
                         CircularProgressIndicator()
                     }
                 } else {
-                    CategoryList(categories, resumeCount =resumeCount)
+                    CategoryList(categories, resumeCount = resumeCount)
                 }
             }
             item {
@@ -254,16 +261,5 @@ fun DashboardScreen(
                 }
             }
         }
-        BottomMenu(
-            modifier = Modifier
-                .fillMaxWidth()
-                .constrainAs(bottomMenu) {
-                    bottom.linkTo(parent.bottom)
-                },
-            onCartClick = onCartClick,
-            onFavoriteClick = onFavoriteClick,
-            onOrderClick = onOrderClick,
-            onProfileClick = onProfileClick
-        )
     }
 }

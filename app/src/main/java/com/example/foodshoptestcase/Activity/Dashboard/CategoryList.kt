@@ -41,7 +41,7 @@ fun CategoryList(categories: MutableList<CategoryModel>, resumeCount: Int) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(24.dp),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp)
+        contentPadding = PaddingValues(start = 32.dp, end = 32.dp, top = 16.dp)
     )
     {
         items(categories.size) { index ->

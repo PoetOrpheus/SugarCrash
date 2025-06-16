@@ -30,6 +30,7 @@ import com.example.foodshoptestcase.R
 @Composable
 fun BottomMenu(
     modifier: Modifier = Modifier,
+    onHomeClick:(()->Unit)?=null,
     onCartClick: (() -> Unit)? = null,
     onFavoriteClick:(()->Unit)?=null,
     onOrderClick:(()->Unit)?=null,
@@ -42,7 +43,7 @@ fun BottomMenu(
             .background(colorResource(R.color.green), shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        BottomMenuItems(icon = painterResource(R.drawable.btn_1), text = "Главная")
+        BottomMenuItems(icon = painterResource(R.drawable.btn_1), text = "Главная", onItemClick = onHomeClick)
         BottomMenuItems(icon = painterResource(R.drawable.btn_2), text = "Корзина", onItemClick = onCartClick)
         BottomMenuItems(icon = painterResource(R.drawable.btn_3), text = "Избранное", onItemClick = onFavoriteClick)
         BottomMenuItems(icon = painterResource(R.drawable.btn_4), text = "История заказов", onItemClick = onOrderClick)

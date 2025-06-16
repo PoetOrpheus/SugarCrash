@@ -1,5 +1,6 @@
 package com.example.foodshoptestcase.Activity.Profile
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -45,6 +46,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.rememberAsyncImagePainter
+import com.example.foodshoptestcase.Activity.Cart.CartActivity
+import com.example.foodshoptestcase.Activity.Dashboard.BottomMenu
+import com.example.foodshoptestcase.Activity.Dashboard.MainActivity
+import com.example.foodshoptestcase.Activity.Favorite.FavoriteActivity
 import com.example.foodshoptestcase.Activity.Order.OrderActivity
 import com.example.foodshoptestcase.Activity.SignIn.VhodActivity
 import com.example.foodshoptestcase.R
@@ -124,13 +129,19 @@ class ProfileActivity : ComponentActivity() {
                         val intent = Intent(this, VhodActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                         startActivity(intent)
-                    }
-                )
+                    },
+                    //Для боттом меню
+                    onCartClick = { startActivity(Intent(this, CartActivity::class.java)) },
+                    onFavoriteClick = { startActivity(Intent(this, FavoriteActivity::class.java)) },
+                    onOrderClick = { startActivity(Intent(this, OrderActivity::class.java)) },
+                    onHomeClick = { startActivity(Intent(this, MainActivity::class.java)) },
+                    )
             }
         }
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
@@ -138,7 +149,11 @@ fun ProfileScreen(
     onOrdersClick: () -> Unit,
     onAddressClick: () -> Unit,
     onPaymentClick: () -> Unit,
-    onLogoutClick: () -> Unit
+    onLogoutClick: () -> Unit,
+    onCartClick:()->Unit,
+    onFavoriteClick:()->Unit,
+    onOrderClick:()->Unit,
+    onHomeClick:()->Unit,
 ) {
     val user = FirebaseAuth.getInstance().currentUser
     var isEditing by remember { mutableStateOf(false) }
@@ -175,189 +190,200 @@ fun ProfileScreen(
             }
         }
     }
-
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = androidx.compose.ui.graphics.Color.White
+    Scaffold(
+        bottomBar = {
+            BottomMenu(
+                modifier = Modifier.fillMaxWidth(),
+                onCartClick = onCartClick,
+                onFavoriteClick = onFavoriteClick,
+                onOrderClick = onOrderClick,
+                onHomeClick = onHomeClick
+            )
+        }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .background(androidx.compose.ui.graphics.Color.White)
-                .padding(16.dp)
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = androidx.compose.ui.graphics.Color.White
         ) {
-            ConstraintLayout(
+            Column(
                 modifier = Modifier
-                    .padding(top = 36.dp)
+                    .fillMaxWidth()
+                    .fillMaxHeight()
                     .background(androidx.compose.ui.graphics.Color.White)
+                    .padding(16.dp)
             ) {
-                val (backBtn, titleTxt) = createRefs()
-
-                Text(
-                    text = "Профиль",
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 25.sp,
+                ConstraintLayout(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .constrainAs(titleTxt) { centerTo(parent) }
-                )
-                Image(
-                    painter = painterResource(R.drawable.back),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .clickable { onBackClick() }
-                        .constrainAs(backBtn) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(parent.start)
-                        }
-                )
-            }
-
-            // Карточка профиля
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                colors = CardDefaults.cardColors(containerColor = ComposeColor.White)
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(top = 36.dp)
+                        .background(androidx.compose.ui.graphics.Color.White)
                 ) {
-                    // Фото профиля
-                    val photoPainter = when {
-                        localPhotoPath != null -> rememberAsyncImagePainter(model = localPhotoPath)
-                        user?.photoUrl != null -> rememberAsyncImagePainter(model = user.photoUrl)
-                        else -> painterResource(id = R.drawable.profile)
-                    }
-                    Image(
-                        painter = photoPainter,
-                        contentDescription = "Фото профиля",
+                    val (backBtn, titleTxt) = createRefs()
+
+                    Text(
+                        text = "Профиль",
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 25.sp,
                         modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                            .background(ComposeColor.LightGray)
-                            .clickable { launcher.launch("image/*") }
+                            .fillMaxWidth()
+                            .constrainAs(titleTxt) { centerTo(parent) }
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Имя и почта
-                    if (isEditing) {
-                        AnimatedVisibility(
-                            visible = isEditing,
-                            enter = fadeIn(),
-                            exit = fadeOut()
-                        ) {
-                            Column {
-                                OutlinedTextField(
-                                    value = name,
-                                    onValueChange = { name = it },
-                                    label = { Text("Имя") },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                                        focusedBorderColor = ComposeColor.Blue,
-                                        unfocusedBorderColor = ComposeColor.Gray
-                                    )
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    text = user?.email ?: "Нет почты",
-                                    fontSize = 16.sp,
-                                    color = ComposeColor.Black.copy(alpha = 0.6f),
-                                    modifier = Modifier.fillMaxWidth()
-                                )
+                    Image(
+                        painter = painterResource(R.drawable.back),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .clickable { onBackClick() }
+                            .constrainAs(backBtn) {
+                                top.linkTo(parent.top)
+                                bottom.linkTo(parent.bottom)
+                                start.linkTo(parent.start)
                             }
-                        }
-                    } else {
-                        Text(
-                            text = name.ifEmpty { "Гость" },
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = ComposeColor.Black,
-                            modifier = Modifier
-                                .clickable { isEditing = true }
-                                .padding(vertical = 8.dp)
-                        )
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 8.dp),
-                            thickness = 1.dp,
-                            color = ComposeColor.Gray
-                        )
-                        Text(
-                            text = user?.email ?: "Нет почты",
-                            fontSize = 16.sp,
-                            color = ComposeColor.Black.copy(alpha = 0.6f),
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
-                    }
+                    )
                 }
-            }
 
-            // Кнопка сохранения
-            AnimatedVisibility(
-                visible = isEditing,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                Button(
-                    onClick = {
-                        val profileUpdates = UserProfileChangeRequest.Builder()
-                            .setDisplayName(name)
-                            .build()
-                        user?.updateProfile(profileUpdates)?.addOnCompleteListener {
-                            if (it.isSuccessful) {
-                                isEditing = false
-                            }
-                        }
-                    },
+                // Карточка профиля
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = ComposeColor.Blue,
-                        contentColor = ComposeColor.White
-                    )
+                        .padding(vertical = 16.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    colors = CardDefaults.cardColors(containerColor = ComposeColor.White)
                 ) {
-                    Text("Сохранить", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                    Column(
+                        modifier = Modifier.padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Фото профиля
+                        val photoPainter = when {
+                            localPhotoPath != null -> rememberAsyncImagePainter(model = localPhotoPath)
+                            user?.photoUrl != null -> rememberAsyncImagePainter(model = user.photoUrl)
+                            else -> painterResource(id = R.drawable.profile)
+                        }
+                        Image(
+                            painter = photoPainter,
+                            contentDescription = "Фото профиля",
+                            modifier = Modifier
+                                .size(120.dp)
+                                .clip(CircleShape)
+                                .background(ComposeColor.LightGray)
+                                .clickable { launcher.launch("image/*") }
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Имя и почта
+                        if (isEditing) {
+                            AnimatedVisibility(
+                                visible = isEditing,
+                                enter = fadeIn(),
+                                exit = fadeOut()
+                            ) {
+                                Column {
+                                    OutlinedTextField(
+                                        value = name,
+                                        onValueChange = { name = it },
+                                        label = { Text("Имя") },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                                            focusedBorderColor = ComposeColor.Blue,
+                                            unfocusedBorderColor = ComposeColor.Gray
+                                        )
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        text = user?.email ?: "Нет почты",
+                                        fontSize = 16.sp,
+                                        color = ComposeColor.Black.copy(alpha = 0.6f),
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
+                        } else {
+                            Text(
+                                text = name.ifEmpty { "Гость" },
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = ComposeColor.Black,
+                                modifier = Modifier
+                                    .clickable { isEditing = true }
+                                    .padding(vertical = 8.dp)
+                            )
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 8.dp),
+                                thickness = 1.dp,
+                                color = ComposeColor.Gray
+                            )
+                            Text(
+                                text = user?.email ?: "Нет почты",
+                                fontSize = 16.sp,
+                                color = ComposeColor.Black.copy(alpha = 0.6f),
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                        }
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(32.dp))
+                // Кнопка сохранения
+                AnimatedVisibility(
+                    visible = isEditing,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    Button(
+                        onClick = {
+                            val profileUpdates = UserProfileChangeRequest.Builder()
+                                .setDisplayName(name)
+                                .build()
+                            user?.updateProfile(profileUpdates)?.addOnCompleteListener {
+                                if (it.isSuccessful) {
+                                    isEditing = false
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = ComposeColor.Blue,
+                            contentColor = ComposeColor.White
+                        )
+                    ) {
+                        Text("Сохранить", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                    }
+                }
 
-            // Меню
-            ProfileOption(
-                title = "Мои заказы",
-                onClick = onOrdersClick
-            )
-            ProfileOption(
-                title = "Адрес доставки",
-                onClick = onAddressClick
-            )
-            ProfileOption(
-                title = "Способы оплаты",
-                onClick = onPaymentClick
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onLogoutClick() }
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = "Выйти",
-                    fontSize = 16.sp,
-                    color = ComposeColor.Black,
-                    fontWeight = FontWeight.Medium
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Меню
+                ProfileOption(
+                    title = "Мои заказы",
+                    onClick = onOrdersClick
                 )
+                ProfileOption(
+                    title = "Адрес доставки",
+                    onClick = onAddressClick
+                )
+                ProfileOption(
+                    title = "Способы оплаты",
+                    onClick = onPaymentClick
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onLogoutClick() }
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = "Выйти",
+                        fontSize = 16.sp,
+                        color = ComposeColor.Black,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
     }
